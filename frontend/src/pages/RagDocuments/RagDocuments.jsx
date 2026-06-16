@@ -108,7 +108,7 @@ export default function RagDocuments() {
       setDocuments((prev) => [newDoc, ...prev]);
       setSelectedFile(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
-    } catch {
+    } catch(err) {
       setUploadError(err?.response?.data?.message || "Upload failed.");
     } finally {
       setIsUploading(false);
@@ -257,7 +257,7 @@ export default function RagDocuments() {
             <ul className={styles.docList}>
               {documents.map((doc) => (
                 <li key={doc.document_id}>
-                  <div                    
+                  <div
                     className={`${styles.docItem} ${activeDoc?.document_id === doc.document_id ? styles["docItem--active"] : ""}`}
                     onClick={() => handleSelectDoc(doc)}
                   >
@@ -368,9 +368,7 @@ export default function RagDocuments() {
                   <ul className={styles.results}>
                     {searchResults.map((r, i) => (
                       <li key={i} className={styles.resultItem}>
-                        <p className={styles.resultItem__text}>
-                          {r.excerpt}
-                        </p>
+                        <p className={styles.resultItem__text}>{r.excerpt}</p>
                         {r.score != null && (
                           <p className={styles.resultItem__score}>
                             Score: {r.score.toFixed(3)}
@@ -380,6 +378,15 @@ export default function RagDocuments() {
                     ))}
                   </ul>
                 )}
+                {/* empty state */}
+                {!isSearching &&
+                  searchQuery &&
+                  searchResults.length === 0 &&
+                  !searchError && (
+                    <p className={styles.noResult}>
+                      No relevant passages found for this query.
+                    </p>
+                  )}
               </div>
 
               <hr className={styles.divider} />

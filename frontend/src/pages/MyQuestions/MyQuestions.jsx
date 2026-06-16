@@ -4,19 +4,20 @@
  * API: getQuestions({ mine: true }) → GET /api/questions?mine=true
  */
 
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { getQuestions } from '../../services/questions/question.service.js';
-import { Plus, MessageSquare, Clock } from 'lucide-react';
-import styles from './MyQuestions.module.css';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import { getQuestions } from "../../services/questions/question.service.js";
+import { Plus } from "lucide-react";
+import styles from "./MyQuestions.module.css";
+import QuestionCard from "../../components/QuestionCard/QuestionCard.jsx";
 
 const formatDate = (d) => {
-  if (!d) return '';
+  if (!d) return "";
   const date = new Date(d);
   const now = new Date();
   const diff = Math.floor((now - date) / 1000);
-  if (diff < 60) return 'just now';
+  if (diff < 60) return "just now";
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
   if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
@@ -32,8 +33,8 @@ export default function MyQuestions() {
   const { user } = useAuth();
 
   const [myQuestions, setMyQuestions] = useState([]);
-  const [isLoading, setIsLoading]     = useState(true);
-  const [error, setError]             = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const load = async () => {
@@ -43,7 +44,7 @@ export default function MyQuestions() {
         const res = await getQuestions({ mine: true });
         setMyQuestions(res.data?.data ?? []);
       } catch {
-        setError('Failed to fetch questions.');
+        setError("Failed to fetch questions.");
       } finally {
         setIsLoading(false);
       }
@@ -51,9 +52,12 @@ export default function MyQuestions() {
     load();
   }, []);
 
+  const handleQuestionDelete = (hash) => {
+    setMyQuestions((prev) => prev.filter((q) => q.questionHash !== hash));
+  };
+
   return (
     <div className={styles.page}>
-
       {/* ── Header card ── */}
       <div className={styles.headerCard}>
         <div>
@@ -65,9 +69,9 @@ export default function MyQuestions() {
           </p>
         </div>
         <button
-          type='button'
+          type="button"
           className={styles.newBtn}
-          onClick={() => navigate('/questions/ask')}
+          onClick={() => navigate("/questions/ask")}
         >
           <Plus size={15} aria-hidden />
           New question
@@ -76,7 +80,6 @@ export default function MyQuestions() {
 
       {/* ── Feed card ── */}
       <div className={styles.feedCard}>
-
         {/* Loading */}
         {isLoading && (
           <p className={styles.stateText}>Loading your questions...</p>
@@ -104,38 +107,12 @@ export default function MyQuestions() {
           <ul className={styles.list}>
             {myQuestions.map((q) => (
               <li key={q.id ?? q.questionHash}>
-                <button
-                  type='button'
-                  className={styles.qcard}
+                <QuestionCard
+                  question={q}
+                  currentUser={user}
                   onClick={() => navigate(`/question/${q.questionHash}`)}
-                >
-                  <img
-                    className={styles.qcard__avatar}
-                    src={getAvatarUrl(q.author?.firstName, q.author?.lastName)}
-                    alt={`${q.author?.firstName?.[0] ?? ''}${q.author?.lastName?.[0] ?? ''}`.toUpperCase()}
-                  />
-                  <div className={styles.qcard__body}>
-                    <div className={styles.qcard__titleRow}>
-                      <h3 className={styles.qcard__title}>{q.title}</h3>
-                      <span className={styles.qcard__yours}>YOURS</span>
-                    </div>
-                    {q.content && (
-                      <p className={styles.qcard__excerpt}>
-                        {q.content.length > 160 ? q.content.slice(0, 160) + '…' : q.content}
-                      </p>
-                    )}
-                    <div className={styles.qcard__meta}>
-                      <span className={styles.qcard__metaItem}>
-                        <MessageSquare size={12} aria-hidden />
-                        {q.answerCount ?? 0} {q.answerCount === 1 ? 'reply' : 'replies'}
-                      </span>
-                      <span className={styles.qcard__metaItem}>
-                        <Clock size={12} aria-hidden />
-                        {formatDate(q.createdAt)} by You
-                      </span>
-                    </div>
-                  </div>
-                </button>
+                  onDelete={handleQuestionDelete}
+                />
               </li>
             ))}
           </ul>

@@ -19,7 +19,7 @@ import { safeExecute } from "../../../../db/config.js";
 import { GoogleGenAI } from "@google/genai";
 import { createRequire } from "module";
 import { readFile } from "fs/promises";
-import {PDFParse} from "pdf-parse";
+import { PDFParse } from "pdf-parse";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 const EMBEDDING_MODEL =
@@ -28,6 +28,7 @@ const TEXT_MODEL = process.env.GEMINI_TEXT_MODEL ?? "gemini-2.5-flash-lite";
 const RAG_CHUNK_CHARS = parseInt(process.env.RAG_CHUNK_CHARS ?? "900", 10);
 const RAG_CHUNK_OVERLAP = parseInt(process.env.RAG_CHUNK_OVERLAP ?? "120", 10);
 const RAG_SEARCH_K = parseInt(process.env.RAG_SEARCH_K ?? "10", 10);
+const SEMANTIC_LEN = parseInt(process.env.SEMANTIC_LEN ?? "250", 10);
 const RAG_SEARCH_THRESHOLD = parseFloat(
   process.env.RAG_SEARCH_THRESHOLD ?? "0.45",
 );
@@ -89,7 +90,7 @@ const embedText = async (text, taskType = "RETRIEVAL_DOCUMENT") => {
     model: EMBEDDING_MODEL,
     contents: text,
     config: { taskType },
-  });  
+  });
   return result.embeddings[0].values;
 };
 
@@ -104,8 +105,7 @@ export const createDocumentFromUploadService = async ({ file, userId }) => {
   );
   const documentId = insertResult.insertId;
 
-  try {   
-
+  try {
     const buffer = await fs.readFile(resolveStoragePath(storagePath));
     const parser = new PDFParse({
       data: buffer,
@@ -123,7 +123,7 @@ export const createDocumentFromUploadService = async ({ file, userId }) => {
         [documentId, i, content],
       );
       const embedding = await embedText(content, "RETRIEVAL_DOCUMENT");
-      
+
       await safeExecute(
         `INSERT INTO document_chunk_vectors (chunk_id, source_text, embedding, status)
          VALUES (?, ?, ?, 'ready')`,
@@ -135,7 +135,7 @@ export const createDocumentFromUploadService = async ({ file, userId }) => {
       `UPDATE documents SET status = 'ready' WHERE document_id = ?`,
       [documentId],
     );
-  } catch (err) {    
+  } catch (err) {
     await safeExecute(
       `UPDATE documents SET status = 'failed', error_message = ? WHERE document_id = ?`,
       [err.message, documentId],
@@ -159,7 +159,15 @@ const cosineSimilarity = (a, b) => {
     magA += a[i] * a[i];
     magB += b[i] * b[i];
   }
+  if (magA === 0 || magB === 0) return 0;
   return dot / (Math.sqrt(magA) * Math.sqrt(magB));
+};
+
+const truncateAtSentence = (text, maxLength = 300) => {
+  if (text.length <= maxLength) return text;
+  const truncated = text.slice(0, maxLength);
+  const lastPeriod = truncated.lastIndexOf(".");
+  return lastPeriod > 0 ? truncated.slice(0, lastPeriod + 1) : truncated;
 };
 
 export const searchInDocumentService = async ({
@@ -168,22 +176,36 @@ export const searchInDocumentService = async ({
   query,
   k = RAG_SEARCH_K,
 }) => {
+  // console.log("STEP 1: start"); // remove later
   const doc = await assertOwnedDocument(documentId, userId);
+  // console.log("STEP 2: doc ok"); // remove later
+
   if (doc.status !== "ready") {
     const err = new Error(`Document is not ready. Status: ${doc.status}`);
     err.statusCode = 409;
     throw err;
   }
 
-  const queryVector = await embedText(query, "RETRIEVAL_QUERY");
-  
+  // const queryVector = await embedText(query, "RETRIEVAL_QUERY");
+  let queryVector;
+  try {
+    queryVector = await embedText(query, "RETRIEVAL_QUERY");
+    // console.log("STEP 3: embedding ok"); // remove later
+  } catch (embedErr) {
+    // console.error("STEP 3 FAILED - embedText error:", embedErr.message); // remove later
+    throw embedErr;
+  }
+  // console.log("STEP 3: embedding ok"); // remove later
+
   const vectors = await safeExecute(
     `SELECT dcv.chunk_id, dcv.source_text, dcv.embedding, dc.chunk_index
      FROM document_chunk_vectors dcv
      JOIN document_chunks dc ON dc.chunk_id = dcv.chunk_id
      WHERE dc.document_id = ? AND dcv.status = 'ready'`,
     [documentId],
-  );  
+  );
+
+  // console.log("STEP 4: DB ok", vectors?.length); // remove later
 
   const scored = vectors
     .map((row) => {
@@ -197,18 +219,19 @@ export const searchInDocumentService = async ({
         return {
           chunkId: row.chunk_id,
           chunkIndex: row.chunk_index,
-          excerpt: row.source_text,
+          excerpt: truncateAtSentence(row.source_text, SEMANTIC_LEN), // truncate charcters
           score,
         };
-      } catch (e) {        
+      } catch (e) {
         return null;
       }
     })
     .filter(Boolean)
     .filter((r) => r.score >= RAG_SEARCH_THRESHOLD)
     .sort((a, b) => b.score - a.score)
-    .slice(0, k); 
- 
+    .slice(0, k);
+
+  // console.log("STEP 5: scored ok", scored.length); // remove later
   return { query, results: scored };
 };
 

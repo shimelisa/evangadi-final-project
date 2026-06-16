@@ -475,3 +475,17 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ── AI Answer ── */
+.noResult{
+  padding: 0.5rem;
+  border-radius: 6px;
+  background: #fdf0f2;
+  border: 1px solid #bbf7d0;
+  font-size: 0.75rem;
+  color: #166534;
+  margin: 0;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}

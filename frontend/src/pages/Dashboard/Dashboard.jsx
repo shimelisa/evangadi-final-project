@@ -84,8 +84,8 @@ export default function Dashboard() {
 
   const handleQuestionDelete = (questionHash) => {
     setQuestions((prev) => prev.filter((q) => q.questionHash !== questionHash));
-  };
-
+  }; 
+                  
   return (
     <div className={styles.page}>
       {/* ── Top card ── */}
@@ -244,7 +244,7 @@ export default function Dashboard() {
                   question={q}
                   currentUser={user}
                   onClick={() => navigate(`/question/${q.questionHash}`)}
-                  onDelete={handleQuestionDelete}
+                  onDelete={handleQuestionDelete}                  
                 />
               </li>
             ))}
