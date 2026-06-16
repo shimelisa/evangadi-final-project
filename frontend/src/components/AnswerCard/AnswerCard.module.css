@@ -1,0 +1,66 @@
+/* AnswerCard.module.css */
+
+.card {
+  padding: 1.25rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--color-border-tertiary, #e5e7eb);
+  border-left: 3px solid var(--color-border-tertiary, #e5e7eb);
+  border-radius: 8px;
+  background: var(--color-background-primary, #fff);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  list-style: none;
+}
+
+.author {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+}
+
+.date {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary, #9ca3af);
+  margin: 0;
+}
+
+.content {
+  font-size: 0.875rem;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.deleteBtn {
+  align-self: flex-end;
+  padding: 0.35rem 0.875rem;
+  border-radius: 6px;
+  border: 1px solid #fca5a5;
+  background: none;
+  color: #ef4444;
+  font-size: 0.775rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.deleteBtn:hover {
+  background: #fef2f2;
+}

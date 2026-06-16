@@ -1,0 +1,98 @@
+/* ConfirmModal.module.css */
+
+/* ── Overlay ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+/* ── Modal box ── */
+.modal {
+  background: var(--color-background-primary, #fff);
+  border: 1px solid var(--color-border-tertiary, #e5e7eb);
+  border-radius: 12px;
+  padding: 1.75rem;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* ── Title ── */
+.title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+}
+
+/* ── Message ── */
+.message {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ── Actions ── */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+/* ── Cancel button ── */
+.cancelBtn {
+  padding: 0.5rem 1.1rem;
+  border-radius: 6px;
+  border: 1px solid var(--color-border-secondary, #d1d5db);
+  background: none;
+  color: var(--color-text-secondary, #6b7280);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.cancelBtn:hover:not(:disabled) {
+  border-color: var(--color-text-primary, #111827);
+  color: var(--color-text-primary, #111827);
+}
+
+.cancelBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── Confirm button ── */
+.confirmBtn {
+  padding: 0.5rem 1.1rem;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.confirmBtn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+.confirmBtn--danger {
+  background: #ef4444;
+  color: #fff;
+}
+
+.confirmBtn--danger:hover:not(:disabled) { opacity: 0.88; }
+
+.confirmBtn--primary {
+  background: var(--color-accent, #f97316);
+  color: #fff;
+}
+
+.confirmBtn--primary:hover:not(:disabled) { opacity: 0.88; }

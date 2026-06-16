@@ -1,0 +1,225 @@
+/* MyQuestions.module.css */
+
+.page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ── Header card ── */
+.headerCard {
+  background: var(--color-background-primary, #fff);
+  border: 1px solid var(--color-border-tertiary, #e5e7eb);
+  border-radius: 12px;
+  padding: 1.75rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.eyebrow {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--color-accent, #f97316);
+  text-transform: uppercase;
+  margin: 0 0 0.4rem;
+}
+
+.title {
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+  margin: 0 0 0.5rem;
+}
+
+.sub {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+  max-width: 52ch;
+  line-height: 1.6;
+}
+
+.newBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: none;
+  background: var(--color-accent, #f97316);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+
+.newBtn:hover { opacity: 0.88; }
+
+/* ── Feed card ── */
+.feedCard {
+  background: var(--color-background-primary, #fff);
+  border: 1px solid var(--color-border-tertiary, #e5e7eb);
+  border-radius: 12px;
+  padding: 1.5rem;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── State text ── */
+.stateText {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+}
+
+/* ── Error box ── */
+.errorBox {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 1.25rem 2rem;
+  text-align: center;
+}
+
+.errorBox p {
+  font-size: 0.875rem;
+  color: #dc2626;
+  margin: 0;
+}
+
+/* ── Empty box ── */
+.emptyBox {
+  background: var(--color-background-secondary, #f9fafb);
+  border: 1px solid var(--color-border-tertiary, #e5e7eb);
+  border-radius: 8px;
+  padding: 1.5rem 2.5rem;
+  text-align: center;
+}
+
+.emptyBox p {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+  max-width: 40ch;
+  line-height: 1.6;
+}
+
+/* ── Question list ── */
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  align-self: flex-start;
+}
+
+/* ── Question card ── */
+.qcard {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-left: 3px solid var(--color-accent, #f97316);
+  border-bottom: 1px solid var(--color-border-tertiary, #e5e7eb);
+  border-radius: 0;
+  padding: 1rem 1rem 1rem 1.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  transition: background 0.15s;
+}
+
+.qcard:hover {
+  background: var(--color-background-secondary, #f9fafb);
+}
+
+.qcard__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.qcard__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.qcard__titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.qcard__title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.qcard__yours {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--color-accent, #f97316);
+  background: color-mix(in srgb, var(--color-accent, #f97316) 12%, transparent);
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+  flex-shrink: 0;
+}
+
+.qcard__excerpt {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.qcard__meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.qcard__metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .page { padding: 1rem; }
+  .headerCard { flex-direction: column; }
+  .newBtn { width: 100%; justify-content: center; }
+  .title { font-size: 1.4rem; }
+}
