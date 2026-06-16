@@ -61,5 +61,3 @@ Evangadi Students – Class of Nov2025
 ## 📌 License
 Educational use only
 ```
-
----
