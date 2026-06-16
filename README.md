@@ -63,11 +63,3 @@ Educational use only
 ```
 
 ---
-
-If you want next improvement, I can:
-- make it more professional (GitHub portfolio style ⭐)
-- add screenshots section
-- add setup instructions (run frontend/backend)
-- or make it look like a real production project
-
-Just tell me 👍
