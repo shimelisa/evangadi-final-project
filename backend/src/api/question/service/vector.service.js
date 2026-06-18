@@ -10,6 +10,7 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 const RECOMMEND_THRESHOLD = Number(process.env.RECOMMEND_THRESHOLD) || 0.75;
 const RECOMMEND_K = Number(process.env.RECOMMEND_K) || 5;
+console.log(RECOMMEND_K);
 
 if (!GEMINI_API_KEY) {
   throw new Error("GEMINI_API_KEY environment variable is required");
@@ -285,7 +286,7 @@ export async function findSimilarQuestionsByText({ sourceText, threshold, k }) {
   // Normalize parameters
   const normalizedK = k || RECOMMEND_K;
   const normalizedThreshold = threshold || RECOMMEND_THRESHOLD;
-
+ 
   // Use RETRIEVAL_QUERY task type when searching against stored documents | line 278
   let embeddingResult;
   try {
@@ -324,7 +325,7 @@ export async function findSimilarQuestionsByText({ sourceText, threshold, k }) {
   for (const stored of storedEmbeddings) {
     try {
       const score = calculateCosineSimilarity(queryEmbedding, stored.embedding); //! line 314 - storedEmbedding
-
+      
       // Filter by threshold
       if (score > normalizedThreshold) {
         similarities.push({

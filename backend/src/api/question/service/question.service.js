@@ -118,9 +118,12 @@ const buildQuestionFilters = (filters) => {
   const params = [];
 
   if (filters.search) {
-    conditions.push("(q.title LIKE ? OR q.content LIKE ?)");
-    const searchTerm = `%${filters.search}`;
-    params.push(searchTerm, searchTerm);
+    const words = filters.search.trim().split(/\s+/).filter(Boolean);
+
+    for (const word of words) {
+      conditions.push("(q.title LIKE ? OR q.content LIKE ?)");
+      params.push(`%${word}%`, `%${word}%`);
+    }
   }
 
   if (filters.mine && filters.userId) {

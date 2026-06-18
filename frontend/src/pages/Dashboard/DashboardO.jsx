@@ -37,6 +37,7 @@ export default function Dashboard() {
   // ── Data fetching ──────────────────────────────────────────────────────────
   const fetchQuestions = useCallback(async (query = "", mode = "keyword") => {
     try {
+      
       setIsLoading(true);
       setError(null);
 
@@ -44,20 +45,20 @@ export default function Dashboard() {
 
       if (!query) {
         // default feed
-
+       
         res = await getQuestions({});
       } else if (mode === "semantic") {
-        // AI semantic search
+        // AI semantic search        
         res = await searchQuestionsSemantic(query);
       } else {
-        // keyword search
+        // keyword search        
         res = await getQuestions({ search: query });
       }
 
-      setQuestions(res.data?.data ?? []);
-    } catch (err) {
+      setQuestions(res.data?.data ?? []);      
+    } catch (err) {      
       setError(err?.response?.data?.message || "Failed to load questions.");
-    } finally {
+    } finally {      
       setIsLoading(false);
     }
   }, []);
@@ -69,7 +70,7 @@ export default function Dashboard() {
 
     setSearchQuery(query);
     setSearchMode(mode);
-
+    
     fetchQuestions(query, mode);
   }, [searchParams.toString(), fetchQuestions]);
 
@@ -95,101 +96,98 @@ export default function Dashboard() {
   return (
     <div className={styles.page}>
       {/* ── Top card ── */}
-      {!searchQuery && (
-        <div className={styles.card}>
-          <div className={styles.hero}>
-            <p className={styles.hero__eyebrow}>FORUM HOME</p>
-            <h1 className={styles.hero__title}>{welcomeLine}</h1>
-            <p className={styles.hero__sub}>
-              Start a topic, revisit your own threads, or skim the live feed.
-              Search above works from any page once you are back on Home.
-            </p>
-          </div>
-
-          {/* Quick actions */}
-          <div className={styles.actions}>
-            <button
-              type="button"
-              className={styles.action}
-              onClick={() => navigate("/questions/ask")}
-            >
-              <span className={styles.action__icon} aria-hidden>
-                <PenSquare size={22} strokeWidth={1.75} />
-              </span>
-              <span className={styles.action__body}>
-                <span className={styles.action__title}>New question</span>
-                <span className={styles.action__desc}>
-                  Share context, errors, and what you already tried
-                </span>
-              </span>
-            </button>
-            <button
-              type="button"
-              className={styles.action}
-              onClick={() => navigate("/my-questions")}
-            >
-              <span className={styles.action__icon} aria-hidden>
-                <Library size={22} strokeWidth={1.75} />
-              </span>
-              <span className={styles.action__body}>
-                <span className={styles.action__title}>Your topics</span>
-                <span className={styles.action__desc}>
-                  Filtered list of threads you authored
-                </span>
-              </span>
-            </button>
-            <button
-              type="button"
-              className={styles.action}
-              onClick={() => navigate("/rag-documents")}
-            >
-              <span className={styles.action__icon} aria-hidden>
-                <BookOpen size={22} strokeWidth={1.75} />
-              </span>
-              <span className={styles.action__body}>
-                <span className={styles.action__title}>Knowledge base</span>
-                <span className={styles.action__desc}>
-                  Course library, uploads, and retrieval-backed context for
-                  threads
-                </span>
-              </span>
-            </button>
-          </div>
-
-          <hr className={styles.divider} />
-
-          {/* Stats */}
-          <p className={styles.statsNote}>
-            Figures below describe the newest threads in this feed (up to 100
-            from the API).
+      <div className={styles.card}>
+        <div className={styles.hero}>
+          <p className={styles.hero__eyebrow}>FORUM HOME</p>
+          <h1 className={styles.hero__title}>{welcomeLine}</h1>
+          <p className={styles.hero__sub}>
+            Start a topic, revisit your own threads, or skim the live feed.
+            Search above works from any page once you are back on Home.
           </p>
-          <div className={styles.stats}>
-            <div className={styles.stat}>
-              <span className={styles.stat__label}>Questions</span>
-              <span className={styles.stat__value}>{totalQuestions}</span>
-            </div>
-            <div className={styles.stat}>
-              <span className={styles.stat__label}>Replies</span>
-              <span className={styles.stat__value}>{totalReplies}</span>
-            </div>
-            <div className={styles.stat}>
-              <span className={styles.stat__label}>Unanswered</span>
-              <span className={styles.stat__value}>{unanswered}</span>
-            </div>
-            <div className={styles.stat}>
-              <span className={styles.stat__label}>Yours</span>
-              <span className={styles.stat__value}>{yours}</span>
-            </div>
+        </div>
+
+        {/* Quick actions */}
+        <div className={styles.actions}>
+          <button
+            type="button"
+            className={styles.action}
+            onClick={() => navigate("/questions/ask")}
+          >
+            <span className={styles.action__icon} aria-hidden>
+              <PenSquare size={22} strokeWidth={1.75} />
+            </span>
+            <span className={styles.action__body}>
+              <span className={styles.action__title}>New question</span>
+              <span className={styles.action__desc}>
+                Share context, errors, and what you already tried
+              </span>
+            </span>
+          </button>
+          <button
+            type="button"
+            className={styles.action}
+            onClick={() => navigate("/my-questions")}
+          >
+            <span className={styles.action__icon} aria-hidden>
+              <Library size={22} strokeWidth={1.75} />
+            </span>
+            <span className={styles.action__body}>
+              <span className={styles.action__title}>Your topics</span>
+              <span className={styles.action__desc}>
+                Filtered list of threads you authored
+              </span>
+            </span>
+          </button>
+          <button
+            type="button"
+            className={styles.action}
+            onClick={() => navigate("/rag-documents")}
+          >
+            <span className={styles.action__icon} aria-hidden>
+              <BookOpen size={22} strokeWidth={1.75} />
+            </span>
+            <span className={styles.action__body}>
+              <span className={styles.action__title}>Knowledge base</span>
+              <span className={styles.action__desc}>
+                Course library, uploads, and retrieval-backed context for
+                threads
+              </span>
+            </span>
+          </button>
+        </div>
+
+        <hr className={styles.divider} />
+
+        {/* Stats */}
+        <p className={styles.statsNote}>
+          Figures below describe the newest threads in this feed (up to 100 from
+          the API).
+        </p>
+        <div className={styles.stats}>
+          <div className={styles.stat}>
+            <span className={styles.stat__label}>Questions</span>
+            <span className={styles.stat__value}>{totalQuestions}</span>
+          </div>
+          <div className={styles.stat}>
+            <span className={styles.stat__label}>Replies</span>
+            <span className={styles.stat__value}>{totalReplies}</span>
+          </div>
+          <div className={styles.stat}>
+            <span className={styles.stat__label}>Unanswered</span>
+            <span className={styles.stat__value}>{unanswered}</span>
+          </div>
+          <div className={styles.stat}>
+            <span className={styles.stat__label}>Yours</span>
+            <span className={styles.stat__value}>{yours}</span>
           </div>
         </div>
-      )}
+      </div>
+
       {/* ── Feed card ── */}
       <div className={styles.card}>
         <div className={styles.feed__header}>
           <div>
-            <h2 className={styles.feed__title}>
-              {searchQuery ? "Search Results" : "Discussion Feed"}
-            </h2>
+            <h2 className={styles.feed__title}>Discussion feed</h2>
             <p className={styles.feed__sub}>
               {searchQuery &&
                 searchMode === "semantic" &&

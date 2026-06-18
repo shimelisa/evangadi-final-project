@@ -39,7 +39,7 @@ router.post(
 
 /**
  * @route GET /api/questions
- * @desc Get questions with optional search filtering
+ * @desc Get questions with optional search filtering //- front Keyword search
  * @access Private
  */
 router.get(
@@ -51,7 +51,7 @@ router.get(
 
 /**
  * @route GET /api/questions/search | line 49
- * @desc Semantic search for questions using vector embeddings based on a text query
+ * @desc Semantic search for questions using vector embeddings based on a text query //- also front semantic search
  * @access Private
  */
 router.get(

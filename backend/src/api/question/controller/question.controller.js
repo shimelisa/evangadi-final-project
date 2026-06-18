@@ -100,13 +100,13 @@ export const getSingleQuestionController = async (req, res, next) => {
 //* line 94
 
 export const searchQuestionsSemanticController = async (req, res, next) => {
-  try {
+    try {
     const result = await searchQuestionsSemanticService({
       query: req.query.query,
-      k: req.query.k ? Number(req.query.k) : 5,
+      k: req.query.k ? Number(req.query.k) : 5, // real-k
       threshold: req.query.threshold ? Number(req.query.threshold) : undefined,
     });
-
+   
     res.status(StatusCodes.OK).json({
       success: true,
       message: "Semantic search completed successfully.",

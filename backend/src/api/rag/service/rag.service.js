@@ -176,9 +176,7 @@ export const searchInDocumentService = async ({
   query,
   k = RAG_SEARCH_K,
 }) => {
-  // console.log("STEP 1: start"); // remove later
   const doc = await assertOwnedDocument(documentId, userId);
-  // console.log("STEP 2: doc ok"); // remove later
 
   if (doc.status !== "ready") {
     const err = new Error(`Document is not ready. Status: ${doc.status}`);
@@ -190,12 +188,9 @@ export const searchInDocumentService = async ({
   let queryVector;
   try {
     queryVector = await embedText(query, "RETRIEVAL_QUERY");
-    // console.log("STEP 3: embedding ok"); // remove later
   } catch (embedErr) {
-    // console.error("STEP 3 FAILED - embedText error:", embedErr.message); // remove later
     throw embedErr;
   }
-  // console.log("STEP 3: embedding ok"); // remove later
 
   const vectors = await safeExecute(
     `SELECT dcv.chunk_id, dcv.source_text, dcv.embedding, dc.chunk_index
@@ -204,8 +199,6 @@ export const searchInDocumentService = async ({
      WHERE dc.document_id = ? AND dcv.status = 'ready'`,
     [documentId],
   );
-
-  // console.log("STEP 4: DB ok", vectors?.length); // remove later
 
   const scored = vectors
     .map((row) => {
@@ -231,7 +224,6 @@ export const searchInDocumentService = async ({
     .sort((a, b) => b.score - a.score)
     .slice(0, k);
 
-  // console.log("STEP 5: scored ok", scored.length); // remove later
   return { query, results: scored };
 };
 
