@@ -8,6 +8,7 @@ import styles from './AnswerCard.module.css';
 import ConfirmModal from '../ConfirmModal/ConfirmModal';
 import { useState } from "react";
 import { deleteAnswer } from '../../services/answers/answers.service';
+import ReactMarkdown from "react-markdown";
 
 const getAvatarUrl = (firstName, lastName) =>
   `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=random`;
@@ -53,10 +54,15 @@ const formatDate = (d) => {
       </div>
 
       {/* Content */}
-      <p className={styles.content}>{a.content}</p>
+      {/* <p className={styles.content}>{a.content}</p> */}
+      <div className={`${styles.content} ${styles.markdown}`}>
+        <ReactMarkdown>{a.content}</ReactMarkdown>
+      </div>
 
       {/* Delete button */}
-      <button className={styles.deleteBtn} onClick={() => setShowModal(true)}>Delete</button>
+      <button className={styles.deleteBtn} onClick={() => setShowModal(true)}>
+        Delete
+      </button>
 
       {/* Confirm Modal */}
       <ConfirmModal

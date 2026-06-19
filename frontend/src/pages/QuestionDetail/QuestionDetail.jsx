@@ -4,18 +4,27 @@
  * API: getQuestion, assessAnswerFit (question.service), postAnswer (answer.service)
  */
 
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { getQuestion, assessAnswerFit, getSimilarQuestions } from '../../services/questions/question.service.js';
-import styles from './QuestionDetail.module.css';
-import { ArrowLeft, Share2, MessageSquare, Sparkles } from 'lucide-react';
-import AnswerCard from '../../components/AnswerCard/AnswerCard.jsx'
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import {
+  getQuestion,
+  assessAnswerFit,
+  getSimilarQuestions,
+} from "../../services/questions/question.service.js";
+import styles from "./QuestionDetail.module.css";
+import { ArrowLeft, Share2, MessageSquare, Sparkles } from "lucide-react";
+import AnswerCard from "../../components/AnswerCard/AnswerCard.jsx";
+import ReactMarkdown from "react-markdown";
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 const formatDate = (d) => {
-  if (!d) return '';
-  return new Date(d).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
+  if (!d) return "";
+  return new Date(d).toLocaleDateString("en-US", {
+    month: "numeric",
+    day: "numeric",
+    year: "numeric",
+  });
 };
 
 const getAvatarUrl = (firstName, lastName) =>
@@ -25,6 +34,7 @@ export default function QuestionDetail() {
   const { questionHash } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [copied, setCopied] = useState(false);
 
   // ── question state ──
   const [question, setQuestion] = useState(null);
@@ -177,18 +187,36 @@ export default function QuestionDetail() {
           </div>
 
           <h1 className={styles.qcard__title}>{question?.title}</h1>
-          <p className={styles.qcard__content}>{question?.content}</p>
+          {/* <p className={styles.qcard__content}>{question?.content}</p> */}
+          <div className={styles.qcard__content}>
+            <p className={styles.markdown}>
+              <ReactMarkdown>{question?.content}</ReactMarkdown>
+            </p>
+          </div>
 
           <hr className={styles.divider} />
 
           <div className={styles.qcard__actions}>
             <button
               className={styles.actionBtn}
-              onClick={() =>
-                navigator.clipboard?.writeText(window.location.href)
-              }
+              title="Copy the page link to share this question"
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.href);
+
+                setCopied(true);
+
+                setTimeout(() => {
+                  setCopied(false);
+                }, 1500);
+              }}
             >
-              <Share2 size={14} aria-hidden /> Share
+              {copied ? (
+                <span style={{ color: "#16a34a", fontWeight: "bold" }}>✓</span>
+              ) : (
+                <Share2 size={14} aria-hidden />
+              )}
+
+              {copied ? " Copied" : " Share"}
             </button>
             <button className={styles.actionBtn}>
               <MessageSquare size={14} aria-hidden />

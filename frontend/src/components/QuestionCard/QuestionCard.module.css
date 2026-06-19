@@ -33,7 +33,7 @@
 }
 
 .qcard__content {
-  flex: 1;
+  flex: 1; 
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -114,3 +114,4 @@
   gap: 0.5rem;
   flex-shrink: 0;
 }
+

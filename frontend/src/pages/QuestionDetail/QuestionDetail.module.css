@@ -98,13 +98,13 @@
   line-height: 1.35;
 }
 
-.qcard__content {
+/* .qcard__content {
   font-size: 0.875rem;
   color: var(--color-text-secondary, #6b7280);
   margin: 0;
   line-height: 1.7;
   white-space: pre-wrap;
-}
+} */
 
 .divider {
   border: none;
@@ -425,4 +425,64 @@
   .sidebar { position: static; }
   .answerForm__footer { flex-direction: column; align-items: flex-start; }
   .btnPrimary { width: 100%; justify-content: center; }
+}
+
+
+/* Markdown container CSS */
+.markdown {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #000;
+}
+
+/* headings smaller (important) */
+.markdown h1,
+.markdown h2,
+.markdown h3 {
+  font-size: 15px;
+  margin: 20px 0 0;
+  font-weight: 600;
+}
+
+/* paragraphs tighter */
+.markdown p {
+  margin: 10px 0;
+}
+
+/* lists compact like your screenshot */
+.markdown ul,
+.markdown ol {
+  margin: 4px 0;
+  padding-left: 18px;
+}
+
+.markdown li code {
+  margin: 2px 0;
+  line-height: 1.3;
+}
+
+/* INLINE code only */
+.markdown :not(pre) > code {
+  background-color: #F1F5F9;
+  padding: 1px 6px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #fbbf24;
+}
+
+/* CODE BLOCK container */
+.markdown pre {
+  background: #F1F5F9;
+  padding: 10px;
+  border-radius: 10px;
+  overflow-x: auto;
+  color: #000;
+}
+
+/* IMPORTANT: reset code inside pre */
+.markdown pre code {
+  color: #000 !important;
+  background: transparent;
+  padding: 0;
+  font-size: 13px;
 }
