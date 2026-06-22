@@ -447,26 +447,12 @@
   line-height: 1.6;
 }
 
-.resultItem__score {
-  font-size: 0.75rem;
-  color: var(--color-text-tertiary, #9ca3af);
-  margin: 0;
-}
-
 /* ── AI Answer ── */
 .aiAnswer {
   padding: 0.875rem;
   border-radius: 6px;
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
-}
-
-.aiAnswer p {
-  font-size: 0.875rem;
-  color: #166534;
-  margin: 0;
-  line-height: 1.7;
-  white-space: pre-wrap;
 }
 
 /* ── Responsive ── */
@@ -488,4 +474,57 @@
   margin: 0;
   line-height: 1.7;
   white-space: pre-wrap;
+}
+
+/* ── Spinner animation for upload/search/ask buttons ── */
+.spin {
+  animation: rag-spin 0.8s linear infinite;
+}
+
+@keyframes rag-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Search result: "Chunk #" + "relevance 0.XXX" header line ── */
+.resultItem__meta {
+  margin: 0 0 0.25rem;
+  font-size: 0.8rem;
+  color: var(--color-text-primary, #111827);
+}
+
+.resultItem__meta strong {
+  font-weight: 700;
+}
+
+.resultItem__relevance {
+  color: var(--color-text-tertiary, #9ca3af);
+  font-weight: 500;
+}
+
+/* ── Ask AI: paragraph spacing ── */
+.aiAnswer__para {
+  font-size: 0.875rem;
+  color: #166534;
+  margin: 0 0 1rem 0;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.aiAnswer__para:last-of-type {
+  margin-bottom: 0.75rem;
+}
+
+/* ── Ask AI: source references footer ── */
+.aiAnswer__sources {
+  margin: 0.75rem 0 0;
+  padding-top: 0.6rem;
+  border-top: 1px solid #bbf7d0;
+  font-size: 0.75rem;
+  color: #166534;
+  line-height: 1.6;
+}
+
+.aiAnswer__sourcesLabel {
+  font-weight: 700;
 }

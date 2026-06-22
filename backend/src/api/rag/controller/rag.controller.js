@@ -7,7 +7,7 @@ import {
   createDocumentFromUploadService,
   listDocumentsForUserService,
   getDocumentMetaService,
-  getRagDocumentFile,
+  getDocumentFileService,
   searchInDocumentService,
   queryDocumentService,
   deleteDocumentService,
@@ -93,10 +93,11 @@ export const getDocumentMetaController = async (req, res, next) => {
  */
 export const getDocumentFileController = async (req, res, next) => {
   try {
-    const { absolutePath, title, mimeType } = await getRagDocumentFile(
+    const { absolutePath, title, mimeType } = await getDocumentFileService(
       req.params.documentId,
       req.user.id,
     );
+    
     res.sendFile(
       absolutePath,
       {
@@ -161,6 +162,7 @@ export const queryDocumentController = async (req, res, next) => {
       data,
     });
   } catch (error) {
+    console.error("queryDocumentController error:", error); // Remove later - can stay
     next(error);
   }
 };

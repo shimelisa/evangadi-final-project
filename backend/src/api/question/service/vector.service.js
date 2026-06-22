@@ -10,7 +10,10 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 const RECOMMEND_THRESHOLD = Number(process.env.RECOMMEND_THRESHOLD) || 0.75;
 const RECOMMEND_K = Number(process.env.RECOMMEND_K) || 5;
-console.log(RECOMMEND_K);
+const RAG_DIMENSION = parseInt(
+  process.env.RAG_OUTPUTDIMENSIONALITY ?? "768",
+  10,
+);
 
 if (!GEMINI_API_KEY) {
   throw new Error("GEMINI_API_KEY environment variable is required");
@@ -113,7 +116,7 @@ export async function generateQuestionEmbedding(sourceText, options = {}) {
       contents: sourceText,
       config: {
         taskType: taskType,
-        outputDimensionality: 768, //768, 1024, 1536, 3072
+        outputDimensionality: RAG_DIMENSION,
       },
     });
 

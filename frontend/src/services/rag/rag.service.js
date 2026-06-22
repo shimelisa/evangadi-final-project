@@ -10,12 +10,25 @@ import { apiClient } from '../core/api.client.js';
 export const listDocuments = () => apiClient.get('/rag/documents');
 
 /** Upload a PDF file */
-export const uploadPdf = (file) => {
+export const uploadPdf = async (file) => {  
   const formData = new FormData();
-  formData.append('file', file);
-  return apiClient.post('/rag/documents', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
+  formData.append("file", file);
+  try {
+    const res = await apiClient.post("/rag/documents", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });    
+    return res;
+  } catch (err) {
+    console.log(
+      "📤 upload error:",
+      err.message,
+      "| status:",
+      err.response?.status,
+      "| code:",
+      err.code,
+    );  // remove later
+    throw err;
+  }
 };
 
 /** Delete a document by ID */

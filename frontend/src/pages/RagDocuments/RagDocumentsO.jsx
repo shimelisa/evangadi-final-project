@@ -5,7 +5,7 @@
  */
 
 import { useState, useEffect, useRef } from "react";
-import { FileText, Upload, Trash2, Sparkles, Loader2 } from "lucide-react";
+import { FileText, Upload, UploadIcon, Trash2, Sparkles, Loader2 } from "lucide-react";
 import {
   listDocuments,
   uploadPdf,
@@ -32,7 +32,7 @@ export default function RagDocuments() {
   // ── Active document ──
   const [activeDoc, setActiveDoc] = useState(null);
 
-  // ── PDF Preview ──
+  // ── PDF Preview — YOUR TASK ──
   const [pdfUrl, setPdfUrl] = useState(null);
   const [previewLoading, setPreviewLoading] = useState(false);
 
@@ -65,8 +65,9 @@ export default function RagDocuments() {
     load();
   }, []);
 
-  // ── Load PDF when activeDoc changes ──
+  // ── Load PDF when activeDoc changes — YOUR TASK ──
   useEffect(() => {
+    // revoke previous blob URL to free memory
     setPdfUrl((prev) => {
       if (prev) URL.revokeObjectURL(prev);
       return null;
@@ -88,6 +89,7 @@ export default function RagDocuments() {
 
     loadPdf();
 
+    // cleanup on unmount
     return () => {
       setPdfUrl((prev) => {
         if (prev) URL.revokeObjectURL(prev);
@@ -107,7 +109,7 @@ export default function RagDocuments() {
       setDocuments((prev) => [newDoc, ...prev]);
       setSelectedFile(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
-    } catch (err) {
+    } catch(err) {
       setUploadError(err?.response?.data?.message || "Upload failed.");
     } finally {
       setIsUploading(false);
@@ -213,7 +215,7 @@ export default function RagDocuments() {
                   type="file"
                   accept="application/pdf"
                   style={{ display: "none" }}
-                  onChange={(e) => {
+                  onChange={(e) => {                    
                     setSelectedFile(e.target.files[0] ?? null);
                     setUploadError(null);
                   }}
@@ -225,7 +227,7 @@ export default function RagDocuments() {
                 className={styles.uploadBtn}
                 onClick={handleUpload}
                 disabled={!selectedFile || isUploading}
-              >
+              >                
                 {isUploading ? (
                   <>
                     <Loader2 size={14} className={styles.spin} />
@@ -321,7 +323,7 @@ export default function RagDocuments() {
           {/* Document ready */}
           {activeDoc && activeDoc.status === "ready" && (
             <>
-              {/* ── Reader / PDF Preview ── */}
+              {/* ── Reader / PDF Preview — YOUR TASK ── */}
               <div className={styles.section}>
                 <h3 className={styles.section__title}>Reader</h3>
                 <p className={styles.section__sub}>
@@ -367,17 +369,8 @@ export default function RagDocuments() {
                     className={styles.btnPrimary}
                     disabled={isSearching}
                   >
-                    {isSearching ? (
-                      <>
-                        <Loader2 size={14} className={styles.spin} />
-                        Searching...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles size={14} aria-hidden />
-                        Search
-                      </>
-                    )}
+                    <Sparkles size={14} aria-hidden />
+                    {isSearching ? "Searching..." : "Search"}
                   </button>
                 </form>
                 {searchError && (
@@ -387,15 +380,12 @@ export default function RagDocuments() {
                   <ul className={styles.results}>
                     {searchResults.map((r, i) => (
                       <li key={i} className={styles.resultItem}>
-                        <p className={styles.resultItem__meta}>
-                          <strong>Chunk {r.chunkIndex ?? i + 1}</strong>
-                          <span className={styles.resultItem__relevance}>
-                            {" "}
-                            · relevance{" "}
-                            {r.score != null ? r.score.toFixed(3) : "—"}
-                          </span>
-                        </p>
                         <p className={styles.resultItem__text}>{r.excerpt}</p>
+                        {r.score != null && (
+                          <p className={styles.resultItem__score}>
+                            Score: {r.score.toFixed(3)}
+                          </p>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -435,48 +425,18 @@ export default function RagDocuments() {
                     className={styles.btnPrimary}
                     disabled={isAsking}
                   >
-                    {isAsking ? (
-                      <>
-                        <Loader2 size={14} className={styles.spin} />
-                        Asking...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles size={14} aria-hidden />
-                        Ask
-                      </>
-                    )}
+                    <Sparkles size={14} aria-hidden />
+                    {isAsking ? "Asking..." : "Ask"}
                   </button>
                 </form>
                 {askError && <p className={styles.inlineError}>{askError}</p>}
                 {aiAnswer && (
                   <div className={styles.aiAnswer}>
-                    {console.log(
-                      "RAW ANSWER:",
-                      JSON.stringify(aiAnswer.answer),
-                    )} 
-                    {/* split answer into paragraphs on blank lines / newlines */}
-                    {(aiAnswer.answer ?? aiAnswer.text ?? "")
-                      .split(/\n+/)
-                      .filter((p) => p.trim().length > 0)
-                      .map((para, i) => (
-                        <p key={i} className={styles.aiAnswer__para}>
-                          {para}
-                        </p>
-                      ))}
-
-                    {/* source references footer */}
-                    {Array.isArray(aiAnswer.citations) &&
-                      aiAnswer.citations.length > 0 && (
-                        <p className={styles.aiAnswer__sources}>
-                          <span className={styles.aiAnswer__sourcesLabel}>
-                            Source Refs:
-                          </span>{" "}
-                          {aiAnswer.citations
-                            .map((c) => `[${c.ref}] → chunk ${c.chunkIndex}`)
-                            .join("  →  ")}
-                        </p>
-                      )}
+                    <p>
+                      {aiAnswer.answer ??
+                        aiAnswer.text ??
+                        JSON.stringify(aiAnswer)}
+                    </p>
                   </div>
                 )}
               </div>

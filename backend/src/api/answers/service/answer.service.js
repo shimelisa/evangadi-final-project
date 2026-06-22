@@ -111,9 +111,9 @@ export const getAnswersService = async ({
   `;
 
   const rows = await safeExecute(listSql, [questionId]);
-  if (rows.length > 0) {
-    console.log(rows[0].userId, rows[0].firstName, rows[0].lastName);
-  }
+  // if (rows.length > 0) {
+  //   console.log("answer.service:",rows[0].userId, rows[0].firstName, rows[0].lastName); // remove later
+  // }
 
   return {
     data: rows.map(mapAnswer),

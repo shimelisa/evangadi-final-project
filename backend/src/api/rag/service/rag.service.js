@@ -32,6 +32,10 @@ const SEMANTIC_LEN = parseInt(process.env.SEMANTIC_LEN ?? "250", 10);
 const RAG_SEARCH_THRESHOLD = parseFloat(
   process.env.RAG_SEARCH_THRESHOLD ?? "0.45",
 );
+const RAG_DIMENSION = parseInt(
+  process.env.RAG_OUTPUTDIMENSIONALITY ?? "768",
+  10,
+);
 
 // ── Helper: resolve storage_path safely ─────────────────────────────────────
 /**
@@ -40,8 +44,13 @@ const RAG_SEARCH_THRESHOLD = parseFloat(
  * @param {string} storagePath - e.g. "uploads/rag/file.pdf"
  * @returns {string} absolute path
  */
-const resolveStoragePath = (storagePath) =>
-  path.join(process.cwd(), storagePath);
+const resolveStoragePath = (storagePath) => {
+  // if storagePath is already absolute (e.g. Windows "C:\..." or POSIX "/..."), use it directly
+  if (path.isAbsolute(storagePath)) {
+    return storagePath;
+  }
+  return path.join(process.cwd(), storagePath);
+};
 
 // ── Shared: assertOwnedDocument ──────────────────────────────────────────────
 /**
@@ -85,11 +94,15 @@ const chunkText = (text) => {
   return chunks.filter((c) => c.trim().length > 0);
 };
 
-const embedText = async (text, taskType = "RETRIEVAL_DOCUMENT") => {
+//! generates Embedding for texts
+const generateEmbedding = async (text, taskType = "RETRIEVAL_DOCUMENT") => {
   const result = await ai.models.embedContent({
     model: EMBEDDING_MODEL,
     contents: text,
-    config: { taskType },
+    config: {
+      taskType,
+      outputDimensionality: RAG_DIMENSION,
+    },
   });
   return result.embeddings[0].values;
 };
@@ -122,7 +135,7 @@ export const createDocumentFromUploadService = async ({ file, userId }) => {
         `INSERT INTO document_chunks (document_id, chunk_index, content) VALUES (?, ?, ?)`,
         [documentId, i, content],
       );
-      const embedding = await embedText(content, "RETRIEVAL_DOCUMENT");
+      const embedding = await generateEmbedding(content, "RETRIEVAL_DOCUMENT");
 
       await safeExecute(
         `INSERT INTO document_chunk_vectors (chunk_id, source_text, embedding, status)
@@ -170,6 +183,7 @@ const truncateAtSentence = (text, maxLength = 300) => {
   return lastPeriod > 0 ? truncated.slice(0, lastPeriod + 1) : truncated;
 };
 
+//! searchInDocumentService
 export const searchInDocumentService = async ({
   documentId,
   userId,
@@ -184,10 +198,10 @@ export const searchInDocumentService = async ({
     throw err;
   }
 
-  // const queryVector = await embedText(query, "RETRIEVAL_QUERY");
+  // const queryVector = await generateEmbedding(query, "RETRIEVAL_QUERY");
   let queryVector;
   try {
-    queryVector = await embedText(query, "RETRIEVAL_QUERY");
+    queryVector = await generateEmbedding(query, "RETRIEVAL_QUERY");
   } catch (embedErr) {
     throw embedErr;
   }
@@ -200,7 +214,7 @@ export const searchInDocumentService = async ({
     [documentId],
   );
 
-  const scored = vectors
+  const allScored = vectors
     .map((row) => {
       try {
         // const embedding = JSON.parse(row.embedding);
@@ -208,6 +222,7 @@ export const searchInDocumentService = async ({
           typeof row.embedding === "string"
             ? JSON.parse(row.embedding)
             : row.embedding;
+
         const score = cosineSimilarity(queryVector, embedding);
         return {
           chunkId: row.chunk_id,
@@ -219,7 +234,11 @@ export const searchInDocumentService = async ({
         return null;
       }
     })
-    .filter(Boolean)
+    .filter(Boolean);
+
+  const topFive = [...allScored].sort((a, b) => b.score - a.score).slice(0, 5);
+
+  const scored = allScored
     .filter((r) => r.score >= RAG_SEARCH_THRESHOLD)
     .sort((a, b) => b.score - a.score)
     .slice(0, k);
@@ -246,8 +265,15 @@ export const queryDocumentService = async ({ documentId, userId, query }) => {
 
   const context = results.map((r, i) => `[${i + 1}] ${r.excerpt}`).join("\n\n");
 
-  const prompt = `You are an assistant that answers questions strictly based on provided document excerpts.
-If the answer is not in the excerpts, say "This document does not cover that topic."
+  // const prompt = `You are an assistant that answers questions strictly based on provided document excerpts.
+  // If the answer is not in the excerpts, say "This document does not cover that topic."`
+
+  const prompt = `
+You are an assistant that answers questions using the document excerpts below as your primary source of information.
+Synthesize an answer using the relevant details across all excerpts, even if no single excerpt fully answers the question
+on its own. Cite excerpt numbers like [1], [2] for any claim you make. Only say "This document does not cover that topic."
+if NONE of the excerpts contain any information relevant to the question. If your answer is longer than 2-3 sentences,
+organize it into short paragraphs separated by a blank line, for easier reading.
 
 Document excerpts:
 ${context}
@@ -260,14 +286,21 @@ Answer (cite excerpt numbers like [1], [2] where relevant):`;
     model: TEXT_MODEL,
     contents: prompt,
   });
+
   const answer = result.text;
+
+  // only include citations that Gemini actually referenced in the answer text
+  const citedRefs = new Set(
+    [...answer.matchAll(/\[(\d+)\]/g)].map((m) => parseInt(m[1], 10)),
+  );
+
+  const citations = results
+    .map((r, i) => ({ ref: i + 1, chunkIndex: r.chunkIndex }))
+    .filter((c) => citedRefs.has(c.ref));
 
   return {
     answer,
-    citations: results.map((r, i) => ({
-      ref: i + 1,
-      chunkIndex: r.chunkIndex,
-    })),
+    citations,
     chunksUsed: results.map((r) => r.chunkId),
   };
 };
@@ -283,7 +316,7 @@ export const getDocumentMetaService = async (documentId, userId) =>
  * @param {number} userId
  * @returns {{ absolutePath, title, mimeType }}
  */
-export const getRagDocumentFile = async (documentId, userId) => {
+export const getDocumentFileService = async (documentId, userId) => {
   const { storage_path, title, mime_type } = await assertOwnedDocument(
     documentId,
     userId,
@@ -297,8 +330,9 @@ export const getRagDocumentFile = async (documentId, userId) => {
 };
 
 // ── T-24: List Documents ─────────────────────────────────────────────────────
-export const listDocumentsForUserService = async (userId) =>
-  safeExecute(
+// { "document_id": 32, "title": "...", "mime_type": "...", "byte_size": ..., "status": "ready", "created_at": "...", "updated_at":"..." }
+export const listDocumentsForUserService = async (userId) => {
+  const rows = await safeExecute(
     `SELECT document_id, title, mime_type, byte_size, status,
             error_message, created_at, updated_at
      FROM documents
@@ -306,6 +340,18 @@ export const listDocumentsForUserService = async (userId) =>
      ORDER BY created_at DESC`,
     [userId],
   );
+
+  return rows.map((row) => ({
+    document_id: row.document_id, // documentId
+    title: row.title,
+    mime_type: row.mime_type, // mimeType
+    byte_size: row.byte_size, // byteSize
+    status: row.status,
+    error_message: row.error_message, //errorMessage
+    created_at: row.created_at, // createdAt
+    updated_at: row.updated_at, // updatedAt
+  }));
+};
 
 // ── T-24: Delete ─────────────────────────────────────────────────────────────
 export const deleteDocumentService = async (documentId, userId) => {

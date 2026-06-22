@@ -27,4 +27,7 @@ uploads/rag/*.pdf
 
 .env
 package-lock.json
+
+# RAG uploaded PDFs (user content, not source code)
 uploads/
+uploads/documents/

@@ -4,24 +4,31 @@
  * Accepts only PDF files, enforces size limit from .env.
  */
 
-import multer from "multer";
-import path from "path";
 import fs from "fs";
+import path from "path";
+import multer from "multer";
+// import { CLIENT_RENEG_WINDOW } from "tls";
 
-const RAG_UPLOAD_DIR = process.env.RAG_UPLOAD_DIR ?? "uploads/rag";
+const RAG_UPLOAD_DIR = process.env.RAG_UPLOAD_DIR ?? "uploads/documents";
 const RAG_MAX_UPLOAD_MB = parseInt(process.env.RAG_MAX_UPLOAD_MB ?? "5", 10);
 
 // ensure upload directory exists
-if (!fs.existsSync(RAG_UPLOAD_DIR)) {
-  fs.mkdirSync(RAG_UPLOAD_DIR, { recursive: true });
-}
-
 const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, RAG_UPLOAD_DIR),
+  destination: (req, _file, cb) => {
+    const userId = req.user?.id;
+    const uploadPath = path.join(process.cwd(), RAG_UPLOAD_DIR, String(userId));
+
+    // Create directory if it doesn't exist
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+
+    cb(null, uploadPath);
+  },
   filename: (_req, file, cb) => {
-    const unique = `${Date.now()}-${Math.round(Math.random() * 1e6)}`;
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
     const ext = path.extname(file.originalname);
-    cb(null, `${unique}${ext}`);
+    cb(null, `${uniqueSuffix}${ext}`);
   },
 });
 

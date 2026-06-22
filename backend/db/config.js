@@ -4,7 +4,6 @@ import mysql from "mysql2/promise";
 // Mock connection or real connection if env vars provided
 // For this demonstration, we'll just export a pool that would work with the schema we designed
 const useRemote = process.env.DB_MODE === "remote";
-console.log("DB_MODE =", process.env.DB_MODE);
 
 const env = (key) => process.env[useRemote ? `${key}_R` : key];
 
